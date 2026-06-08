@@ -67,6 +67,30 @@ LeanTrain 是一个探索中的 AI 训练框架：以主存/统一内存为中�
 - 不优先做完整分布式训练栈。
 - 不先优化所有算子性能；先验证内存中心调度模型。
 
+## 项目结构
+
+```text
+leantrain/
+  hardware/    # 硬件发现、机器画像、带宽 profiling
+  memory/      # TensorObject、MemoryTier、Residency、allocator
+  model/       # HF adapter、parameter group、execution template
+  planner/     # task graph、checkpoint/prefetch/parallelism policy
+  runtime/     # scheduler、worker、stream、copy queue、gradient slab
+  training/    # loss、optimizer、training loop 集成
+examples/      # 可直接运行的小工具和训练例子
+tests/         # 单元测试
+docs/          # 设计文档
+```
+
+当前已有一个最小 CLI 入口：
+
+```bash
+python -m leantrain.cli probe
+python -m leantrain.cli probe --json
+```
+
+后续会把它安装为 `leantrain probe`。
+
 ## 设计文档
 
 - [Hardware Targets](docs/hardware-targets.md)：面向 8x RTX 4090 + 2TB RAM 和 4x RTX 2080 Ti + 1TB RAM 的硬件约束与默认策略。

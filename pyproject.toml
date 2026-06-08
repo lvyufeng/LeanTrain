@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "leantrain"
+version = "0.0.0"
+description = "Memory-first AI training runtime for large-RAM, consumer-GPU workstations."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "lvyufeng", email = "lvyufeng@cqu.edu.cn" },
+]
+dependencies = []
+
+[project.optional-dependencies]
+torch = ["torch>=2.0"]
+dev = [
+  "pytest>=8",
+  "ruff>=0.4",
+]
+
+[project.scripts]
+leantrain = "leantrain.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["leantrain*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

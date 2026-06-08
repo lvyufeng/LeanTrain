@@ -1,0 +1,113 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging and build outputs
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
+
+# Native/CUDA build artifacts
+*.so
+*.dylib
+*.dll
+*.o
+*.a
+*.cuo
+*.cubin
+*.fatbin
+*.ptx
+*.sass
+*.nsys-rep
+*.qdrep
+*.sqlite
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+
+# Editors and OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs and experiment trackers
+logs/
+log/
+runs/
+wandb/
+mlruns/
+tensorboard/
+*.log
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+*.local.json
+secrets/
+
+# Datasets and generated data
+data/
+datasets/
+cache/
+.cache/
+*.arrow
+*.parquet
+*.jsonl.zst
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+# Model artifacts, checkpoints, and training outputs
+checkpoints/
+ckpts/
+outputs/
+artifacts/
+models/
+weights/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+
+# Large memory/offload scratch files
+scratch/
+offload/
+nvme_offload/
+*.mmap
+*.memmap
+*.npy
+*.npz
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Claude local workspace state
+.claude/settings.local.json
