@@ -67,6 +67,12 @@ LeanTrain 是一个探索中的 AI 训练框架：以主存/统一内存为中�
 - 不优先做完整分布式训练栈。
 - 不先优化所有算子性能；先验证内存中心调度模型。
 
+## 设计文档
+
+- [Hardware Targets](docs/hardware-targets.md)：面向 8x RTX 4090 + 2TB RAM 和 4x RTX 2080 Ti + 1TB RAM 的硬件约束与默认策略。
+- [MegaTrain Analysis](docs/megatrain-analysis.md)：对上级目录 MegaTrain 项目的架构分析、可借鉴点和 LeanTrain 差异化方向。
+- [Architecture](docs/architecture.md)：LeanTrain 初始 memory-first runtime 架构、核心抽象和开发阶段。
+
 ## 项目状态
 
 项目处于概念与原型设计阶段。当前 README 用作初始设计锚点，后续会在 worktree 中并行展开架构分析、原型开发和实验验证。
