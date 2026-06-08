@@ -56,6 +56,8 @@ LeanTrain should default to:
 
 Before designing advanced schedulers, measure:
 
+- Full measurement capture using `python -m leantrain.cli measure --devices all --output profiles/8x4090-measured.json`.
+- Markdown report generation using `python -m leantrain.cli report profiles/8x4090-measured.json --output reports/8x4090.md`.
 - Single-GPU H2D bandwidth from pageable and pinned memory using `python -m leantrain.cli bandwidth`.
 - 8-GPU simultaneous H2D bandwidth using `python -m leantrain.cli multi-bandwidth --devices all`.
 - Staggered H2D bandwidth using `python -m leantrain.cli multi-bandwidth --devices all --stagger-ms 2`.

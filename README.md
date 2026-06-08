@@ -91,9 +91,11 @@ python -m leantrain.cli bandwidth --device 0 --size-mb 256 --repeats 20
 python -m leantrain.cli bandwidth --device 0 --pageable --json
 python -m leantrain.cli multi-bandwidth --devices all --size-mb 256
 python -m leantrain.cli multi-bandwidth --devices 0,1,2,3 --stagger-ms 2
+python -m leantrain.cli measure --devices all --output profiles/8x4090-measured.json
+python -m leantrain.cli report profiles/8x4090-measured.json --output reports/8x4090.md
 ```
 
-`probe` 负责输出主机内存、NUMA、GPU PCI bus id 等画像；`bandwidth` 负责测量单卡 CPU↔GPU 拷贝带宽；`multi-bandwidth` 负责测量多卡同时或错峰 H2D 聚合带宽。后续会把它安装为 `leantrain probe` / `leantrain bandwidth` / `leantrain multi-bandwidth`。
+`probe` 负责输出主机内存、NUMA、GPU PCI bus id 等画像；`bandwidth` 负责测量单卡 CPU↔GPU 拷贝带宽；`multi-bandwidth` 负责测量多卡同时或错峰 H2D 聚合带宽；`measure` 把 profile 和 benchmark 结果保存为 JSON；`report` 把 measurement JSON 渲染为 Markdown。后续会把它们安装为 `leantrain probe` / `leantrain bandwidth` / `leantrain multi-bandwidth` / `leantrain measure` / `leantrain report`。
 
 ## 设计文档
 

@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from leantrain.hardware.bandwidth import benchmark_copy_bandwidth, benchmark_multi_gpu_h2d_bandwidth
+from leantrain.hardware.measure import load_measurement, run_measurement_suite, save_measurement
 from leantrain.hardware.probe import probe_hardware
+from leantrain.hardware.report import render_measurement_report
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -60,6 +63,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Use pageable host memory instead of pinned host memory.",
     )
     multi_bandwidth.add_argument("--json", action="store_true", help="Print result as JSON.")
+
+    measure = subcommands.add_parser(
+        "measure",
+        help="Collect probe data plus optional bandwidth measurements into JSON.",
+    )
+    measure.add_argument("--devices", type=str, default="all", help="Comma-separated ids, or 'all'.")
+    measure.add_argument("--size-mb", type=int, default=256, help="Copy size per benchmark.")
+    measure.add_argument("--repeats", type=int, default=10, help="Measured repetitions.")
+    measure.add_argument("--warmup", type=int, default=3, help="Warmup repetitions.")
+    measure.add_argument("--stagger-ms", type=float, default=2.0, help="Stagger delay in ms.")
+    measure.add_argument("--include-pageable", action="store_true", help="Also measure pageable RAM.")
+    measure.add_argument("--skip-bandwidth", action="store_true", help="Only collect profile data.")
+    measure.add_argument("--skip-multi", action="store_true", help="Skip multi-GPU benchmarks.")
+    measure.add_argument("--skip-grouped", action="store_true", help="Skip PCIe-group benchmarks.")
+    measure.add_argument("--output", type=Path, help="Write measurement JSON to this path.")
+
+    report = subcommands.add_parser(
+        "report",
+        help="Render a saved measurement JSON file as Markdown.",
+    )
+    report.add_argument("input", type=Path, help="Measurement JSON file.")
+    report.add_argument("--output", type=Path, help="Write Markdown report to this path.")
 
     return parser
 
@@ -129,6 +154,35 @@ def main() -> None:
                 f"per_gpu={result.per_device_gb_per_second:.2f} GB/s "
                 f"({result.mean_seconds * 1000:.3f} ms avg, n={result.repeats})"
             )
+        return
+
+    if args.command == "measure":
+        measurement = run_measurement_suite(
+            devices=_parse_devices(args.devices),
+            include_bandwidth=not args.skip_bandwidth,
+            include_pageable=args.include_pageable,
+            include_multi=not args.skip_multi,
+            include_grouped=not args.skip_grouped,
+            size_mb=args.size_mb,
+            repeats=args.repeats,
+            warmup=args.warmup,
+            stagger_seconds=args.stagger_ms / 1000.0,
+        )
+        if args.output:
+            save_measurement(measurement, args.output)
+            print(f"wrote measurement JSON to {args.output}")
+        else:
+            print(json.dumps(measurement, indent=2, ensure_ascii=False))
+        return
+
+    if args.command == "report":
+        report = render_measurement_report(load_measurement(args.input))
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(report, encoding="utf-8")
+            print(f"wrote Markdown report to {args.output}")
+        else:
+            print(report, end="")
         return
 
     parser.error(f"unknown command: {args.command}")
