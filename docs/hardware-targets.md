@@ -56,8 +56,9 @@ LeanTrain should default to:
 
 Before designing advanced schedulers, measure:
 
-- Single-GPU H2D bandwidth from pageable and pinned memory.
-- 8-GPU simultaneous H2D bandwidth.
+- Single-GPU H2D bandwidth from pageable and pinned memory using `python -m leantrain.cli bandwidth`.
+- 8-GPU simultaneous H2D bandwidth using `python -m leantrain.cli multi-bandwidth --devices all`.
+- Staggered H2D bandwidth using `python -m leantrain.cli multi-bandwidth --devices all --stagger-ms 2`.
 - Per-GPU H2D bandwidth grouped by NUMA node or PCIe root complex.
 - D2H gradient copy bandwidth under compute load.
 - BF16 matmul/attention throughput for representative model blocks.
@@ -144,6 +145,8 @@ hardware:
     - id: 0
       name: RTX 4090
       vram_bytes: 25769803776
+      pci_bus_id: "00000000:3B:00.0"
+      uuid: GPU-...
       numa_node: 0
       pcie_group: A
       supports_bf16: true

@@ -8,9 +8,22 @@ from dataclasses import asdict, dataclass, field
 def _format_cpu_summary(cpus: list[int]) -> str:
     if not cpus:
         return "unknown"
-    if len(cpus) <= 8:
-        return ",".join(str(cpu) for cpu in cpus)
-    return f"{cpus[0]}-{cpus[-1]} ({len(cpus)} CPUs)"
+
+    ranges: list[str] = []
+    sorted_cpus = sorted(cpus)
+    start = previous = sorted_cpus[0]
+    for cpu in sorted_cpus[1:]:
+        if cpu == previous + 1:
+            previous = cpu
+            continue
+        ranges.append(_format_cpu_range(start, previous))
+        start = previous = cpu
+    ranges.append(_format_cpu_range(start, previous))
+    return f"{','.join(ranges)} ({len(sorted_cpus)} CPUs)"
+
+
+def _format_cpu_range(start: int, end: int) -> str:
+    return str(start) if start == end else f"{start}-{end}"
 
 
 @dataclass(slots=True)
@@ -20,6 +33,8 @@ class GPUProfile:
     id: int
     name: str
     vram_bytes: int | None = None
+    pci_bus_id: str | None = None
+    uuid: str | None = None
     numa_node: int | None = None
     pcie_group: str | None = None
     supports_bf16: bool | None = None
@@ -73,5 +88,11 @@ class HardwareProfile:
         for gpu in self.gpus:
             vram = "unknown" if gpu.vram_bytes is None else f"{gpu.vram_bytes / 1024**3:.1f} GiB"
             bf16 = "unknown" if gpu.supports_bf16 is None else str(gpu.supports_bf16)
-            lines.append(f"  - cuda:{gpu.id}: {gpu.name}, VRAM={vram}, BF16={bf16}")
+            bus = "unknown" if gpu.pci_bus_id is None else gpu.pci_bus_id
+            numa = "unknown" if gpu.numa_node is None else str(gpu.numa_node)
+            pcie_group = "unknown" if gpu.pcie_group is None else gpu.pcie_group
+            lines.append(
+                f"  - cuda:{gpu.id}: {gpu.name}, VRAM={vram}, BF16={bf16}, "
+                f"PCI={bus}, NUMA={numa}, group={pcie_group}"
+            )
         return "\n".join(lines)
