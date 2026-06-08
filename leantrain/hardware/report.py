@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from leantrain.planner.policies import recommend_from_measurement
+
 
 def render_measurement_report(measurement: dict[str, Any]) -> str:
     """Render a saved measurement dictionary as a Markdown report."""
@@ -115,33 +117,13 @@ def _render_errors(errors: list[dict[str, Any]]) -> list[str]:
 
 
 def _render_scheduler_hints(profile: dict[str, Any], bandwidth: dict[str, Any]) -> list[str]:
+    recommendation = recommend_from_measurement({"profile": profile, "bandwidth": bandwidth, "settings": {}})
     lines = ["## Scheduler Hints", ""]
-    gpus = profile.get("gpus", [])
-    groups: dict[str, list[int]] = {}
-    for gpu in gpus:
-        group = gpu.get("pcie_group")
-        if group is None:
-            continue
-        groups.setdefault(group, []).append(gpu["id"])
-
-    if groups:
-        lines.append("- Treat PCIe groups as copy-concurrency islands:")
-        for group, devices in sorted(groups.items()):
-            lines.append(f"  - `{group}`: GPUs {','.join(str(device) for device in devices)}")
-    else:
-        lines.append("- PCIe groups were not detected; avoid assuming uniform multi-GPU bandwidth.")
-
-    multi = bandwidth.get("multi_gpu", [])
-    simultaneous = [result for result in multi if result.get("mode") == "simultaneous_h2d"]
-    staggered = [result for result in multi if result.get("mode") == "staggered_h2d"]
-    if simultaneous and staggered:
-        best_sim = max(result["aggregate_gb_per_second"] for result in simultaneous)
-        best_stagger = max(result["aggregate_gb_per_second"] for result in staggered)
-        if best_stagger > best_sim * 1.05:
-            lines.append("- Staggered H2D improved aggregate bandwidth; prefer copy staggering.")
-        else:
-            lines.append("- Staggered H2D did not clearly improve aggregate bandwidth in this run.")
-
+    for item in recommendation.scheduler:
+        lines.append(f"- **{item.key}**: {_format_unknown(item.value)}")
+        lines.append(f"  - {item.rationale}")
+    for warning in recommendation.warnings:
+        lines.append(f"- Warning: {warning}")
     lines.append("")
     return lines
 
