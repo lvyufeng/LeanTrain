@@ -1,15 +1,10 @@
-"""Local hardware probing.
-
-The first implementation is intentionally conservative: it records host memory and
-CUDA devices when PyTorch is installed, without requiring CUDA to be available.
-Bandwidth microbenchmarks will be added after the basic project skeleton is in
-place.
-"""
+"""Local hardware probing."""
 
 from __future__ import annotations
 
 import os
 
+from leantrain.hardware.numa import read_numa_nodes
 from leantrain.hardware.profile import GPUProfile, HardwareProfile
 
 
@@ -54,5 +49,6 @@ def probe_hardware() -> HardwareProfile:
 
     return HardwareProfile(
         host_ram_bytes=_host_ram_bytes(),
+        numa_nodes=read_numa_nodes(),
         gpus=_probe_torch_gpus(),
     )

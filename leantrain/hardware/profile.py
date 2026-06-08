@@ -5,6 +5,14 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 
+def _format_cpu_summary(cpus: list[int]) -> str:
+    if not cpus:
+        return "unknown"
+    if len(cpus) <= 8:
+        return ",".join(str(cpu) for cpu in cpus)
+    return f"{cpus[0]}-{cpus[-1]} ({len(cpus)} CPUs)"
+
+
 @dataclass(slots=True)
 class GPUProfile:
     """Description of one accelerator visible to LeanTrain."""
@@ -46,6 +54,14 @@ class HardwareProfile:
 
         if self.numa_nodes:
             lines.append(f"- NUMA nodes: {len(self.numa_nodes)}")
+            for node in self.numa_nodes:
+                memory = (
+                    "unknown"
+                    if node.memory_bytes is None
+                    else f"{node.memory_bytes / 1024**3:.1f} GiB"
+                )
+                cpu_range = _format_cpu_summary(node.cpus)
+                lines.append(f"  - node{node.id}: memory={memory}, cpus={cpu_range}")
         else:
             lines.append("- NUMA nodes: unknown")
 

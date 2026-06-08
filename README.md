@@ -82,14 +82,16 @@ tests/         # 单元测试
 docs/          # 设计文档
 ```
 
-当前已有一个最小 CLI 入口：
+当前已有最小 CLI 入口：
 
 ```bash
 python -m leantrain.cli probe
 python -m leantrain.cli probe --json
+python -m leantrain.cli bandwidth --device 0 --size-mb 256 --repeats 20
+python -m leantrain.cli bandwidth --device 0 --pageable --json
 ```
 
-后续会把它安装为 `leantrain probe`。
+`probe` 负责输出主机内存、NUMA 和 GPU 画像；`bandwidth` 负责测量单卡 CPU↔GPU 拷贝带宽。后续会把它安装为 `leantrain probe` / `leantrain bandwidth`。
 
 ## 设计文档
 
