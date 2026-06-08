@@ -67,6 +67,42 @@ LeanTrain 是一个探索中的 AI 训练框架：以主存/统一内存为中�
 - 不优先做完整分布式训练栈。
 - 不先优化所有算子性能；先验证内存中心调度模型。
 
+## 项目结构
+
+```text
+leantrain/
+  hardware/    # 硬件发现、机器画像、带宽 profiling
+  memory/      # TensorObject、MemoryTier、Residency、allocator
+  model/       # HF adapter、parameter group、execution template
+  planner/     # task graph、checkpoint/prefetch/parallelism policy
+  runtime/     # scheduler、worker、stream、copy queue、gradient slab
+  training/    # loss、optimizer、training loop 集成
+examples/      # 可直接运行的小工具和训练例子
+tests/         # 单元测试
+docs/          # 设计文档
+```
+
+当前已有最小 CLI 入口：
+
+```bash
+python -m leantrain.cli probe
+python -m leantrain.cli probe --json
+python -m leantrain.cli bandwidth --device 0 --size-mb 256 --repeats 20
+python -m leantrain.cli bandwidth --device 0 --pageable --json
+python -m leantrain.cli multi-bandwidth --devices all --size-mb 256
+python -m leantrain.cli multi-bandwidth --devices 0,1,2,3 --stagger-ms 2
+python -m leantrain.cli measure --devices all --output profiles/8x4090-measured.json
+python -m leantrain.cli report profiles/8x4090-measured.json --output reports/8x4090.md
+```
+
+`probe` 负责输出主机内存、NUMA、GPU PCI bus id 等画像；`bandwidth` 负责测量单卡 CPU↔GPU 拷贝带宽；`multi-bandwidth` 负责测量多卡同时或错峰 H2D 聚合带宽；`measure` 把 profile 和 benchmark 结果保存为 JSON；`report` 把 measurement JSON 渲染为 Markdown。后续会把它们安装为 `leantrain probe` / `leantrain bandwidth` / `leantrain multi-bandwidth` / `leantrain measure` / `leantrain report`。
+
+## 设计文档
+
+- [Hardware Targets](docs/hardware-targets.md)：面向 8x RTX 4090 + 2TB RAM 和 4x RTX 2080 Ti + 1TB RAM 的硬件约束与默认策略。
+- [MegaTrain Analysis](docs/megatrain-analysis.md)：对上级目录 MegaTrain 项目的架构分析、可借鉴点和 LeanTrain 差异化方向。
+- [Architecture](docs/architecture.md)：LeanTrain 初始 memory-first runtime 架构、核心抽象和开发阶段。
+
 ## 项目状态
 
 项目处于概念与原型设计阶段。当前 README 用作初始设计锚点，后续会在 worktree 中并行展开架构分析、原型开发和实验验证。
