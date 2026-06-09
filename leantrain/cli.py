@@ -10,6 +10,7 @@ from leantrain.hardware.bandwidth import benchmark_copy_bandwidth, benchmark_mul
 from leantrain.hardware.measure import load_measurement, run_measurement_suite, save_measurement
 from leantrain.hardware.probe import probe_hardware
 from leantrain.hardware.report import render_measurement_report
+from leantrain.planner.policies import recommend_from_measurement, render_recommendations
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -85,6 +86,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     report.add_argument("input", type=Path, help="Measurement JSON file.")
     report.add_argument("--output", type=Path, help="Write Markdown report to this path.")
+
+    recommend = subcommands.add_parser(
+        "recommend",
+        help="Recommend planner and scheduler policy from measurement JSON.",
+    )
+    recommend.add_argument("input", type=Path, help="Measurement JSON file.")
+    recommend.add_argument("--json", action="store_true", help="Print recommendations as JSON.")
+    recommend.add_argument("--output", type=Path, help="Write recommendations to this path.")
 
     return parser
 
@@ -183,6 +192,20 @@ def main() -> None:
             print(f"wrote Markdown report to {args.output}")
         else:
             print(report, end="")
+        return
+
+    if args.command == "recommend":
+        recommendation = recommend_from_measurement(load_measurement(args.input))
+        if args.json:
+            output = json.dumps(recommendation.to_dict(), indent=2, ensure_ascii=False) + "\n"
+        else:
+            output = render_recommendations(recommendation)
+        if args.output:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(output, encoding="utf-8")
+            print(f"wrote planner recommendations to {args.output}")
+        else:
+            print(output, end="")
         return
 
     parser.error(f"unknown command: {args.command}")

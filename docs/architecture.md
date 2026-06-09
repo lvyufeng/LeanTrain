@@ -269,7 +269,7 @@ Tensor parallelism should not be the default for the target machines because GPU
 
 ## Planner responsibilities
 
-The planner should produce a task graph from a model and hardware profile.
+The planner ultimately should produce a task graph from a model and hardware profile. The first implementation step is lighter weight: consume saved measurement JSON and emit planner/scheduler policy recommendations before full model-aware task graph generation exists.
 
 Initial decisions:
 
